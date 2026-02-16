@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from pathlib import Path
 
 import click
@@ -15,14 +16,16 @@ def serve() -> None:
     current_path = Path(__file__).parent.absolute()
     app = current_path.joinpath("app.py")
     settings = get_mcpo_settings()
-
+    python = Path(sys.executable)
+    mcpo = python.parent.joinpath("mcpo")
     subprocess.call([
-        "mcpo",
+        python,
+        mcpo,
         "--host",
         settings.mcpo_ip,
         "--port",
         str(settings.mcpo_port),
         "--",
-        "python",
+        python,
         str(app)
     ])
