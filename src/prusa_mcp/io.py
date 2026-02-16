@@ -10,6 +10,8 @@ __all__ = [
 
     "StorageList",
     "get_print_files_list",
+    "get_job_status",
+    "PrinterStatus",
 
 ]
 
@@ -52,6 +54,30 @@ class StorageList(BaseModel):
     storage_list: list[StorageItem]
 
 
+class FileRefs(BaseModel):
+    icon: str
+    thumbnail: str
+    download: str
+
+
+class FileInfo(BaseModel):
+    refs: FileRefs
+    name: str
+    display_name: str
+    path: str
+    size: int
+    m_timestamp: int
+
+
+class PrinterStatus(BaseModel):
+    id: int
+    state: str
+    progress: float
+    time_remaining: int
+    time_printing: int
+    file: FileInfo
+
+
 async def get_storage_list(url: str, header: dict[str, Any]) -> StorageList:
     """List available storage locations on the printer (e.g. 'usb', 'local')."""
     async with httpx.AsyncClient() as client:
@@ -92,3 +118,12 @@ async def get_files_list(url: str, header: dict[str, Any], storage_list: Storage
 async def get_print_files_list(settings: PrinterConfig) -> StorageContent:
     storages = await get_storage_list(url=settings.base_url(), header=settings.header())
     return await get_files_list(url=settings.base_url(), header=settings.header(), storage_list=storages)
+
+
+async def get_job_status(settings: PrinterConfig) -> PrinterStatus:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{settings.base_url()}/job", headers=settings.header())
+        response.raise_for_status()
+
+        status = PrinterStatus.model_validate(response.json())
+        return status

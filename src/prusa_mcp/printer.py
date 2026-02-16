@@ -4,7 +4,7 @@ from typing import Any, List
 
 import httpx
 
-from prusa_mcp.io import get_print_files_list
+from prusa_mcp.io import get_print_files_list, get_job_status
 from prusa_mcp.settings import PrinterConfig
 
 
@@ -45,13 +45,28 @@ async def start_print_job(
 
         return {"success": True, "status_code": 200, "message": f"Printing {filename_or_path}"}
 
-
-async def cancel_print_job(settings: PrinterConfig) -> dict[str, Any]:
+async def pause_print_job(settings: PrinterConfig) -> dict[str, Any]:
+    status = await get_job_status(settings)
     async with httpx.AsyncClient() as client:
-        payload = {"command": "cancel"}
-        response = await client.post(
-            f"{settings.base_url()}/job", json=payload, headers=settings.json_headers()
+        response = await client.put(f"{settings.base_url()}/job/{status.id}/pause", headers=settings.json_headers())
+        response.raise_for_status()
+        return {"success": True, "status_code": 200, "message": f"Paused {status.file.display_name}"}
+
+
+async def resume_print_job(settings: PrinterConfig) -> dict[str, Any]:
+    status = await get_job_status(settings)
+    async with httpx.AsyncClient() as client:
+        response = await client.put(f"{settings.base_url()}/job/{status.id}/resume", headers=settings.json_headers())
+        response.raise_for_status()
+        return {"success": True, "status_code": 200, "message": f"Resumed {status.file.display_name}"}
+
+
+async def stop_print_job(settings: PrinterConfig) -> dict[str, Any]:
+    status = await get_job_status(settings)
+    async with httpx.AsyncClient() as client:
+        response = await client.delete(
+            f"{settings.base_url()}/job/{status.id}",
+            headers=settings.header(),
         )
         response.raise_for_status()
-        result: dict[str, Any] = response.json()
-        return result
+        return {"success": True, "status_code": 200, "message": f"Stopped {status.file.display_name}"}

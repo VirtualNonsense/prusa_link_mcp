@@ -8,8 +8,9 @@ from typing import Any
 import httpx
 from mcp.server.fastmcp import FastMCP
 
-from prusa_mcp.io import get_print_files_list
-from prusa_mcp.printer import start_print_job, cancel_print_job, get_printer_status
+from prusa_mcp.io import get_print_files_list, get_job_status, PrinterStatus
+from prusa_mcp.printer import start_print_job,  get_printer_status, stop_print_job, pause_print_job, \
+    resume_print_job
 from prusa_mcp.settings import get_printer_settings
 
 mcp = FastMCP("Prusa Printer")
@@ -87,30 +88,25 @@ async def start_job(filename: str) -> dict[str, Any]:
 @mcp.tool()
 async def cancel_job() -> dict[str, Any]:
     """Cancel the current print job."""
-    return await cancel_print_job(settings)
+    return await stop_print_job(settings)
 
 
 @mcp.tool()
-async def set_temperature(component: str, temperature: float) -> dict[str, Any]:
-    """Set the target temperature for a printer component ('bed' or 'extruder')."""
-    if component == "bed":
-        target: dict[str, float] = {"bed": temperature}
-    elif component.startswith("extruder"):
-        target = {"tool0": temperature}
-    else:
-        raise ValueError(f"Unsupported component: {component}")
+async def resume_job() -> dict[str, Any]:
+    """resumes the current print job."""
+    return await resume_print_job(settings)
 
-    payload: dict[str, Any] = {"command": "set", "target": target}
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"{settings.base_url()}/printer/temperature",
-            json=payload,
-            headers=settings.json_headers(),
-        )
-        response.raise_for_status()
-        result: dict[str, Any] = response.json()
-        return result
+@mcp.tool()
+async def pause_job() -> dict[str, Any]:
+    """pause the current print job."""
+    return await pause_print_job(settings)
+
+
+@mcp.tool()
+async def job_status() -> PrinterStatus:
+    """The status of the current job."""
+    return await get_job_status(settings)
 
 
 if __name__ == "__main__":
