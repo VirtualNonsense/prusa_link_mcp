@@ -30,8 +30,8 @@ class PrinterConfig(BaseSettings):
 
 class McpoSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='allow')
-    mcpo_ip: str = Field("0.0.0.0", description="host ip for the mcp server")
-    mcpo_port: int = Field(8080, description="Port for the mcp server")
+    mcpo_ip: str = Field("localhost", description="host ip for the mcp server")
+    mcpo_port: int = Field(8000, description="Port for the mcp server")
 
 
 @lru_cache
