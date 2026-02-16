@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "prusa-mcp"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Andreas Nachtmann", email = "andreas.nachtmann@mathema.de" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+    "mcp[cli]",
+    "mcpo>=0.0.19",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+]
+
+[project.urls]
+Documentation = "https://github.com/Andreas Nachtmann/prusa-mcp#readme"
+Issues = "https://github.com/Andreas Nachtmann/prusa-mcp/issues"
+Source = "https://github.com/Andreas Nachtmann/prusa-mcp"
+
+[dependency-groups]
+dev = [
+    "mypy",
+    "pytest",
+    "pytest-asyncio",
+]
+
+
+[tool.hatch.version]
+path = "src/prusa_mcp/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/prusa_mcp tests}"
+
+[tool.coverage.run]
+source_pkgs = ["prusa_mcp", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/prusa_mcp/__about__.py",
+]
+
+[tool.mypy]
+strict = true
+mypy_path = ["src"]
+plugins = ["pydantic.mypy"]
+python_version = "3.12"
+
+
+[tool.coverage.paths]
+prusa_mcp = ["src/prusa_mcp", "*/prusa-mcp/src/prusa_mcp"]
+tests = ["tests", "*/prusa-mcp/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
