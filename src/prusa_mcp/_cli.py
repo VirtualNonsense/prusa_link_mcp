@@ -9,7 +9,7 @@ import logging
 import click
 
 from prusa_mcp.proxy import *
-from prusa_mcp.settings import get_mcpo_settings
+from prusa_mcp.settings import get_mcpo_settings, get_proxy_settings
 
 LOG = getLogger(__name__)
 
@@ -54,17 +54,18 @@ def serve(host: Optional[str] = None, port: Optional[int] = None) -> None:
 @click.option("--no_tcp_nodelay", type=int, help="Disable TCP_NODELAY")
 def proxy(target_host: Optional[str] = None,
           target_port: Optional[int] = None,
-          listen_host: Optional[int] = None,
+          listen_host: Optional[str] = None,
           listen_port: Optional[int] = None,
           buffer_size: Optional[int] = None,
           no_tcp_nodelay: Optional[bool] = None) -> None:
-    settings = get_mcpo_settings()
-    target_host = target_host or settings.mcpo_ip
-    target_port = target_port or settings.mcpo_port
+    mcpo_settings = get_mcpo_settings()
+    proxy_settings = get_proxy_settings()
+    target_host = target_host or proxy_settings.target_ip
+    target_port = target_port or mcpo_settings.mcpo_port
 
-    buffer_size = buffer_size or 64 * 1024
-    listen_host = listen_host or "0.0.0.0"  # type: ignore[assignment]
-    listen_port = listen_port or 5000
+    listen_host = listen_host or proxy_settings.listening_ip
+    listen_port = listen_port or proxy_settings.listening_port
+    buffer_size = buffer_size or proxy_settings.buffer_size
 
     assert target_host is not None
     assert target_port is not None
