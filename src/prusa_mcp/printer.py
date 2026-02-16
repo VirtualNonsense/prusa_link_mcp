@@ -43,11 +43,7 @@ async def start_print_job(
         response = await client.post(url, headers=settings.header())
         response.raise_for_status()
 
-        if not response.content:
-            return {"success": True, "status_code": response.status_code}
-
-        result: dict[str, Any] = response.json()
-        return result
+        return {"success": True, "status_code": 200, "message": f"Printing {filename_or_path}"}
 
 
 async def cancel_print_job(settings: PrinterConfig) -> dict[str, Any]:
