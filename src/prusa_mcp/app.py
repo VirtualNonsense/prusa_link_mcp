@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -15,8 +16,12 @@ from prusa_mcp.settings import get_printer_settings
 
 mcp = FastMCP("Prusa Printer")
 
+logging.basicConfig(level=logging.INFO)
+LOG = logging.getLogger(__name__)
+
 # ── Helpers ──────────────────────────────────────────────────────────────────
 settings = get_printer_settings()
+LOG.info(f"Printer settings: {settings}")
 
 
 # ── Tools ────────────────────────────────────────────────────────────────────
