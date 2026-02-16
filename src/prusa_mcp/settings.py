@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,13 +11,13 @@ class PrinterConfig(BaseSettings):
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='allow')
 
-    host: str = "192.168.0.42"
+    printer_host: str = "192.168.0.42"
     port: int = 80
     api_key: str
 
 
     def base_url(self) -> str:
-        return f"http://{self.host}:{self.port}/api/v1"
+        return f"http://{self.printer_host}:{self.port}/api/v1"
 
     def header(self) -> dict[str, str]:
         return {"X-Api-Key": self.api_key}
@@ -27,6 +28,17 @@ class PrinterConfig(BaseSettings):
             "Content-Type": "application/json",
         }
 
+class McpoSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='allow')
+    mcpo_ip: str = Field("0.0.0.0", description="host ip for the mcp server")
+    mcpo_port: int = Field(8080, description="Port for the mcp server")
+
+
 @lru_cache
-def get_settings() -> PrinterConfig:
+def get_printer_settings() -> PrinterConfig:
     return PrinterConfig()
+
+
+@lru_cache
+def get_mcpo_settings() -> McpoSettings:
+    return McpoSettings()

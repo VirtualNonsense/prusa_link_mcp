@@ -10,12 +10,12 @@ from mcp.server.fastmcp import FastMCP
 
 from prusa_mcp.io import get_print_files_list
 from prusa_mcp.printer import start_print_job, cancel_print_job, get_printer_status
-from prusa_mcp.settings import get_settings
+from prusa_mcp.settings import get_printer_settings
 
 mcp = FastMCP("Prusa Printer")
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
-settings = get_settings()
+settings = get_printer_settings()
 
 
 # ── Tools ────────────────────────────────────────────────────────────────────

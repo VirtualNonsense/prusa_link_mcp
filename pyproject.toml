@@ -25,6 +25,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
+    "click>=8.3.1",
     "mcp[cli]",
     "mcpo>=0.0.19",
     "pydantic>=2.12.5",
@@ -43,6 +44,8 @@ dev = [
     "pytest-asyncio",
 ]
 
+[project.scripts]
+prusa_mcp = "prusa_mcp._cli:prusa_mcp"
 
 [tool.hatch.version]
 path = "src/prusa_mcp/__about__.py"
