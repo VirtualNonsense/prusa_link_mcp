@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,17 +13,17 @@ class PrinterConfig(BaseSettings):
 
     printer_host: str = "192.168.0.42"
     port: int = 80
-    api_key: str
+    api_key: SecretStr
 
     def base_url(self) -> str:
         return f"http://{self.printer_host}:{self.port}/api/v1"
 
     def header(self) -> dict[str, str]:
-        return {"X-Api-Key": self.api_key}
+        return {"X-Api-Key": self.api_key.get_secret_value()}
 
     def json_headers(self) -> dict[str, str]:
         return {
-            "X-Api-Key": self.api_key,
+            "X-Api-Key": self.api_key.get_secret_value(),
             "Content-Type": "application/json",
         }
 
